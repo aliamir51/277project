@@ -14,8 +14,9 @@
         small
         responsive
         caption="Scientists"
-        fa="fa fa-picture-o"
+        fa="icon-user"
         v-on:refresh="loadItems()"
+        v-on:selected="rowSelected($event)"
         @click="clicked(item)"
         @click2="click2()"
       ></c-table>
@@ -53,7 +54,7 @@
             v-model="sname"
             type="text"
             class="form-control"
-            placeholder="Scientistname"
+            :placeholder="itemselectedid"
           />
         </b-input-group>
         <b-button type="submit" variant="primary">view projects</b-button>
@@ -69,9 +70,10 @@
           </b-input-group-prepend>
           <b-form-input
             v-model="Sresource"
+            disabled
             type="text"
             class="form-control"
-            placeholder="Scientistname"
+            :placeholder="itemselectedid"
           />
         </b-input-group>
         <b-button type="submit" variant="primary">view resources</b-button>
@@ -99,11 +101,11 @@ export default {
       primaryModal: false,
       secondryModal: false,
       fields: {
-        fname: {
+        FirstName: {
           label: "FirstName",
           sortable: true
         },
-        lname: {
+        LastName: {
           label: "LastName",
           sortable: true
         },
@@ -111,23 +113,23 @@ export default {
           label: "Salary",
           sortable: true
         },
-        MangerName: {
+        ManagerName: {
           label: "MangerName",
           sortable: true
         },
-        DepName: {
+        Name: {
           label: "DepName",
           sortable: true
         }
-
       },
       filter: null,
       scientists: [],
-      projects: [1, 2, 3, 4],
-      results: ["23", "32", "32", "32"],
+      projects: [],
+      results: [],
       errors: [],
       selectMode: "Mode",
-      selected: []
+      selected: [],
+      itemselectedid: ""
     };
   },
 
@@ -142,15 +144,38 @@ export default {
     }
   },
   methods: {
-    onsubmit1() {
+    async onsubmit1() {
+       try {
+        const response = await axios.get(
+          "http://51.77.192.7:8085/api/get/scientist/projs/"+this.itemselectedid
+        );
+        console.log(response.data);
+        this.projects=response.data;
+
+      } catch (e) {
+        this.errors.push(e);
+      }
+
       this.primaryModal = true;
 
     },
-    onsubmit2() {
+     async onsubmit2() {
+        try {
+        const response = await axios.get(
+          "http://51.77.192.7:8085/api/get/scientist/results/"+this.itemselectedid
+        );
+      this.results=response.data;
+
+      } catch (e) {
+        this.errors.push(e);
+      }
+
       this.secondryModal = true;
+
     },
     rowSelected(items) {
       this.selected = items;
+      this.itemselectedid = this.selected[0].ID;
       this.$emit("scientistsSelected", this.selected);
     },
     onFiltered(filteredItems) {
@@ -159,9 +184,15 @@ export default {
       this.currentPage = 1;
     },
     async loadItems() {
-      try {
-        // const response = await axios.get('http://51.77.192.7:8080/api/list/ADS?token=JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==');
-        // this.scientists = response.data;
+
+       try {
+        const response = await axios.get(
+          "http://51.77.192.7:8085/api/get/scientists"
+        );
+        console.log(response.data);
+        this.scientists = response.data;
+
+
       } catch (e) {
         this.errors.push(e);
       }

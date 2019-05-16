@@ -17,6 +17,7 @@
                     </b-input-group-prepend>
                     <b-form-input
                       type="text"
+                      v-model="body.username"
                       class="form-control"
                       placeholder="Username"
                       autocomplete="username email"
@@ -30,6 +31,7 @@
                     </b-input-group-prepend>
                     <b-form-input
                       type="password"
+                      v-model="body.password"
                       class="form-control"
                       placeholder="Password"
                       autocomplete="current-password"
@@ -63,14 +65,43 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "Login",
+  data() {
+    return {
+      response: "",
+      $id:"",
+      errors: [],
+      body: {
+        username: "	",
+        password: ""
+      }
+    };
+  },
   methods: {
-    login() {
-      this.$router.push({ path: "/home" });
+    async login() {
+      try {
+        console.log(this.body);
+        const response = await axios.post(
+          "http://51.77.192.7:8085/api/authenticate/",
+          this.body
+        );
+        this.response = response.data;
+       this.$id=this.response.id;
+         console.log(this.$id);
+      } catch (e) {
+        this.errors.push(e);
+        console.log(e);
+      }
+      if (this.response.success == 1) {
+        this.$router.push({ path: "/home" });
+      } else {
+        this.$router.push({ path: "/login" });
+      }
     },
     register() {
-     this.$router.push({ path: "/register" });
+      this.$router.push({ path: "/register" });
     }
   }
 };

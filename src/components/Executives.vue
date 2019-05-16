@@ -54,11 +54,11 @@ export default {
       primaryModal: false,
       fields: {
 
-        fname: {
+        FirstName: {
           label: "FirstName",
           sortable: true
         },
-        lname: {
+        LastName: {
           label: "LastName",
           sortable: true
         },
@@ -83,9 +83,7 @@ export default {
     }
   },
   methods: {
-    clicked() {
-      this.primaryModal = true;
-    },
+
     rowSelected(items) {
       this.selected = items;
       this.$emit("executivesSelected", this.selected);
@@ -97,8 +95,9 @@ export default {
     },
     async loadItems() {
       try {
-        // const response = await axios.get('http://51.77.192.7:8080/api/list/ADS?token=JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==');
-        // this.executives = response.data;
+
+        const response = await axios.get('http://51.77.192.7:8085/api/get/executives');
+        this.executives = response.data;
       } catch (e) {
         this.errors.push(e);
       }

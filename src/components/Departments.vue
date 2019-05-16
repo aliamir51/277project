@@ -1,41 +1,85 @@
 <template>
   <!-- <div class="animated fadeIn"> -->
-    <!-- Table -->
-    <b-row>
-      <b-col lg="12">
-        <c-table
-          :table-data="departments"
-          :fields="fields"
-          :per-page="10"
-          hover
-          fixed
-          striped
-          bordered
-          small
-          responsive
-          caption="Departments"
-          fa="fa fa-picture-o"
-          v-on:selected="updatedAS($event)"
-          v-on:refresh="loadItems()"
-          @click="clicked()"
-        ></c-table>
-      </b-col>
-        <b-modal
-      title="Modal title"
+  <!-- Table -->
+  <b-row>
+    <b-col lg="12">
+      <c-table
+        :table-data="departments"
+        :fields="fields"
+        :per-page="10"
+        hover
+        fixed
+        striped
+        bordered
+        small
+        responsive
+        caption="Departments"
+        fa="fa fa-building"
+        v-on:selected="rowSelected($event)"
+        v-on:refresh="loadItems()"
+        @click="clicked()"
+      ></c-table>
+    </b-col>
+    <b-modal
+      title="Projects"
       class="modal-primary"
       v-model="primaryModal"
       @ok="primaryModal = false"
     >
-      <b-form-group>
-       <label for="ID">Dep ID</label>
-        <b-form-input type="text" id="id"   disabled :placeholder="d"></b-form-input>
-        <label for="fname">First name</label>
-        <b-form-input type="text" id="fname"  placeholder="First Name"></b-form-input>
-        <label for="lname">Last name</label>
-        <b-form-input type="text" id="lname" placeholder="Last Name"></b-form-input>
-      </b-form-group>
+      <ul>
+        <li v-for="(project, $index) in projects">{{project['Project Name']}}:{{project['Project Description']}}> </li>
+      </ul>
     </b-modal>
-    </b-row>
+    <b-modal
+      title="Scientists"
+      class="modal-primary"
+      v-model="secondryModal"
+      @ok="secondryModal = false"
+    >
+      <ul>
+        <li v-for="(scientist, $index) in scientists">{{scientist.FirstName }} {{scientist.LastName }}</li>
+      </ul>
+    </b-modal>
+    <b-col>
+      <b-form @submit="onsubmit1">
+        <b-input-group class="mb-3" label-for="input-1">
+          <b-input-group-prepend>
+            <b-input-group-text>
+              <i class="fa fa-building"></i>
+            </b-input-group-text>
+          </b-input-group-prepend>
+          <b-form-input
+            disabled
+            id="input-1"
+            v-model="pr"
+            type="text"
+            class="form-control"
+            :placeholder="itemselectedid"
+          />
+        </b-input-group>
+        <b-button type="submit" variant="primary">view projects</b-button>
+      </b-form>
+    </b-col>
+    <b-col>
+      <b-form @submit="onsubmit2">
+        <b-input-group class="mb-3" label-for="input-1">
+          <b-input-group-prepend>
+            <b-input-group-text>
+              <i class="fa fa-building"></i>
+            </b-input-group-text>
+          </b-input-group-prepend>
+          <b-form-input
+            v-model="sr"
+            type="text"
+            class="form-control"
+            disabled
+            :placeholder="itemselectedid"
+          />
+        </b-input-group>
+        <b-button type="submit" variant="primary">view Scientists</b-button>
+      </b-form>
+    </b-col>
+  </b-row>
   <!-- </div> -->
 </template>
 
@@ -43,7 +87,7 @@
 
 <script>
 import cTable from "./Table.vue";
-import button from "@/views/buttons/StandardButtons.vue"
+import button from "@/views/buttons/StandardButtons.vue";
 
 import axios from "axios";
 export default {
@@ -52,20 +96,26 @@ export default {
   props: {},
   data() {
     return {
-       primaryModal: false,
+      pr: "",
+      sr: "",
+      itemselectedid: "",
+      scientists: [],
+      projects: [],
+      primaryModal: false,
+      secondryModal: false,
       fields: {
         name: {
           label: "Name",
           sortable: true
         },
-        Head: {
+          HODName: {
           label: "Head of Dept",
           sortable: true
         },
         Location: {
           label: "Location",
           sortable: true
-        },
+        }
       },
       filter: null,
       departments: [],
@@ -85,11 +135,38 @@ export default {
         });
     }
   },
-  methods: {  clicked() {
+  methods: {
+    async onsubmit1() {
+       try {
+        const response = await axios.get(
+          "http://51.77.192.7:8085/api/get/department/projects/"+this.itemselectedid
+        );
+this.projects=response.data;
+
+      } catch (e) {
+        this.errors.push(e);
+      }
+
       this.primaryModal = true;
+
+    },
+     async onsubmit2() {
+        try {
+        const response = await axios.get(
+          "http://51.77.192.7:8085/api/get/department/scientists/"+this.itemselectedid
+        );
+      this.scientists=response.data;
+
+      } catch (e) {
+        this.errors.push(e);
+      }
+
+      this.secondryModal = true;
+
     },
     rowSelected(items) {
       this.selected = items;
+      this.itemselectedid = this.selected[0].name;
       this.$emit("departmentsSelected", this.selected);
     },
     onFiltered(filteredItems) {
@@ -99,8 +176,11 @@ export default {
     },
     async loadItems() {
       try {
-        // const response = await axios.get('http://51.77.192.7:8080/api/list/ADS?token=JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==');
-        // this.departments = response.data;
+        const response = await axios.get(
+          "http://51.77.192.7:8085/api/get/departments"
+        );
+console.log(response.data);
+        this.departments = response.data;
       } catch (e) {
         this.errors.push(e);
       }

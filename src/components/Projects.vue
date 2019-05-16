@@ -13,31 +13,30 @@
         small
         responsive
         caption="Projects"
-        fa="fa fa-picture-o"
+        fa="fa fa-flask"
+        v-on:selected="rowSelected($event)"
         v-on:refresh="loadItems()"
         @click="clicked()"
       ></c-table>
     </b-col>
     <b-modal
-      title="Add project"
+      title="Results"
       class="modal-primary"
       v-model="primaryModal"
       @ok="primaryModal=false"
     >
       <ol>
-        <li v-for="(result, $index) in results">{{result}}</li>
+        <li v-for="(result, $index) in results">{{result.Data}}</li>
       </ol>
     </b-modal>
     <b-modal title="Modal title" class="modal-primary" v-model="pModal" @ok="submitclose()">
       <b-form-group>
         <label for="Name">First name</label>
-        <b-form-input v-model="form.Name" type="text" id="fname" placeholder="Name"></b-form-input>
+        <b-form-input v-model="body.name" type="text" id="fname" placeholder="Name"></b-form-input>
         <label for="lname">Description</label>
-        <b-form-input v-model="form.Description" type="text" id="lname" placeholder="Description"></b-form-input>
+        <b-form-input v-model="body.Description" type="text" id="lname" placeholder="Description"></b-form-input>
         <label for="Name">Department</label>
-        <b-form-input v-model="form.Department" type="text" placeholder="Department ID"></b-form-input>
-        <label for="lname">ProjectManager</label>
-        <b-form-input v-model="form.ProjectManager" type="text" placeholder="ProjectManager ID"></b-form-input>
+        <b-form-input v-model="body.depID" type="text" placeholder="Department ID"></b-form-input>
       </b-form-group>
     </b-modal>
 
@@ -52,10 +51,11 @@
             </b-input-group-prepend>
             <b-form-input
               id="input-1"
+              disabled
               v-model="pname"
               type="text"
               class="form-control"
-              placeholder="Projectname"
+              :placeholder="itemselectedid"
             />
           </b-input-group>
           <b-button type="submit" variant="primary">view results</b-button>
@@ -78,20 +78,23 @@ import button from "@/views/buttons/StandardButtons.vue";
 import axios from "axios";
 export default {
   name: "projects",
+
   components: { cTable },
   props: {},
   data() {
     return {
-      form: {
-        Name: "",
+      body: {
+        name: "",
         Description: "",
-        Department: "",
-        ProjectManager: ""
+        depID: "",
+
+        scientistID: this.$id
       },
+      itemselectedid: null,
       pname: "",
       pModal: false,
       fields: {
-        name: {
+        Name: {
           label: "Name",
           sortable: true
         },
@@ -99,11 +102,11 @@ export default {
           label: "Description ",
           sortable: true
         },
-        Dept: {
+        Department: {
           label: "Department",
           sortable: true
         },
-        Manger: {
+        ManagerName: {
           label: "Project manger ",
           sortable: true
         }
@@ -129,17 +132,36 @@ export default {
     }
   },
   methods: {
-    onsubmit1() {
+    async onsubmit1() {
+      try {
+        const response = await axios.get(
+          "http://51.77.192.7:8085/api/get/proj/result/" +
+            this.itemselectedid +
+            ""
+        );
+        this.results = response.data;
+      } catch (e) {
+        this.errors.push(e);
+      }
       this.primaryModal = true;
     },
-    submitclose() {
-      alert(JSON.stringify(this.form));
+    async submitclose() {
+      try {
+        const response = await axios.post(
+          "http://51.77.192.7:8085/api/add/project?scientistID=" + this.$id,this.body
+        );
+
+      } catch (e) {
+        this.errors.push(e);
+      }
+      this.pModal = false;
     },
     AddProject() {
       this.pModal = true;
     },
     rowSelected(items) {
       this.selected = items;
+      this.itemselectedid = this.selected[0].Name;
       this.$emit("projectsSelected", this.selected);
     },
     onFiltered(filteredItems) {
@@ -149,8 +171,11 @@ export default {
     },
     async loadItems() {
       try {
-        // const response = await axios.get('http://51.77.192.7:8080/api/list/ADS?token=JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==');
-        // this.projects = response.data;
+        const response = await axios.get(
+          "http://51.77.192.7:8085/api/get/all/project"
+        );
+        console.log(response.data);
+        this.projects = response.data;
       } catch (e) {
         this.errors.push(e);
       }

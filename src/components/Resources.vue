@@ -19,31 +19,17 @@
         @click="click"
       ></c-table>
     </b-col>
-    <b-modal
-      title="Modal title"
-      class="modal-primary"
-      v-model="primaryModal"
-      @ok="primaryModal = false"
-    >
+    <b-modal title="Add resource" class="modal-primary" v-model="addModal" @ok="submitclose()">
       <b-form-group>
-        <label for="ID">ID</label>
-        <b-form-input type="text" id="id" disabled :placeholder=" s"></b-form-input>
-        <label for="fname">First name</label>
-        <b-form-input type="text" id="fname" placeholder="First Name"></b-form-input>
-        <label for="lname">Last name</label>
-        <b-form-input type="text" id="lname" placeholder="Last Name"></b-form-input>
+        <label for="Name"> Name</label>
+        <b-form-input v-model="body.name" type="text" id="fname" placeholder="Name"></b-form-input>
+        <label for="lname">Description</label>
+        <b-form-input v-model="body.description" type="text" id="lname" placeholder="Description"></b-form-input>
+        <label for="lname">Cost</label>
+        <b-form-input v-model="body.cost" type="text" placeholder="Cost"></b-form-input>
       </b-form-group>
     </b-modal>
-    <b-modal title="Modal title" class="modal-primary" v-model="addModal" @ok="addModal = false">
-      <b-form-group>
-        <label for="ID">ID</label>
-        <b-form-input type="text" id="id" disabled placeholder="k"></b-form-input>
-        <label for="fname">First name</label>
-        <b-form-input type="text" id="fname" placeholder="First Name"></b-form-input>
-        <label for="lname">Last name</label>
-        <b-form-input type="text" id="lname" placeholder="Last Name"></b-form-input>
-      </b-form-group>
-    </b-modal>
+    <b-btn id="add" variant="primary" @click="AddProject()">Add Project</b-btn>
   </b-row>
 
   <!-- </div> -->
@@ -63,15 +49,15 @@ export default {
   props: {},
   data() {
     return {
-      primaryModal: false,
+      editModal: false,
       addModal: false,
-
+      body: {},
       fields: {
         Name: {
           label: "Name",
           sortable: true
         },
-        cost: {
+        Cost: {
           label: "Cost",
           sortable: true
         }
@@ -106,15 +92,21 @@ export default {
     }
   },
   methods: {
-    click(evt) {
-      this.primaryModal = true;
-      let children = Array.from(event.currentTarget.childNodes);
-      let target = event.target;
-      if (target.tagName === "BUTTON") {
-        this.todos.splice(children.indexOf(target.parentNode), 1);
-      }
-    },
+    async submitclose() {
+      try {
+        console.log(this.body)
+        const response = await axios.post(
+          "http://51.77.192.7:8085/api/add/resource",this.body
+        );
 
+      } catch (e) {
+        this.errors.push(e);
+      }
+      this.addModal = false;
+    },
+    AddProject() {
+      this.addModal = true;
+    },
     rowSelected(items) {
       this.selected = items;
       this.$emit("resourcesSelected", this.selected);
@@ -127,8 +119,8 @@ export default {
 
     async loadItems() {
       try {
-        // const response = await axios.get('http://51.77.192.7:8080/api/list/ADS?token=JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==');
-        // this.resources = response.data;
+        const response = await axios.get('http://51.77.192.7:8085/api/get/resources');
+        this.resources = response.data;
       } catch (e) {
         this.errors.push(e);
       }
