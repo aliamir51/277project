@@ -71,7 +71,7 @@ export default {
   data() {
     return {
       response: "",
-      $id:"",
+
       errors: [],
       body: {
         username: "	",
@@ -88,8 +88,8 @@ export default {
           this.body
         );
         this.response = response.data;
-       this.$id=this.response.id;
-         console.log(this.$id);
+       this.$id.value=this.response.id;
+         console.log(this.$id.value);
       } catch (e) {
         this.errors.push(e);
         console.log(e);

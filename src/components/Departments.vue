@@ -27,7 +27,7 @@
       @ok="primaryModal = false"
     >
       <ul>
-        <li v-for="(project, $index) in projects">{{project['Project Name']}}:{{project['Project Description']}}> </li>
+        <li v-for="(project, $index) in projects">{{project['Project Name']}}:{{project['Project Description']}} </li>
       </ul>
     </b-modal>
     <b-modal
@@ -41,7 +41,7 @@
       </ul>
     </b-modal>
     <b-col>
-      <b-form @submit="onsubmit1">
+      <b-form >
         <b-input-group class="mb-3" label-for="input-1">
           <b-input-group-prepend>
             <b-input-group-text>
@@ -57,11 +57,11 @@
             :placeholder="itemselectedid"
           />
         </b-input-group>
-        <b-button type="submit" variant="primary">view projects</b-button>
+        <b-button @click="onsubmit1" variant="primary">view projects</b-button>
       </b-form>
     </b-col>
     <b-col>
-      <b-form @submit="onsubmit2">
+      <b-form >
         <b-input-group class="mb-3" label-for="input-1">
           <b-input-group-prepend>
             <b-input-group-text>
@@ -76,7 +76,7 @@
             :placeholder="itemselectedid"
           />
         </b-input-group>
-        <b-button type="submit" variant="primary">view Scientists</b-button>
+        <b-button @click="onsubmit2" variant="primary">view Scientists</b-button>
       </b-form>
     </b-col>
   </b-row>

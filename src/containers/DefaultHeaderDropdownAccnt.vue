@@ -35,13 +35,14 @@
       </b-dropdown-item>
       <b-dropdown-divider />
       <b-dropdown-item><i class="fa fa-shield" /> Lock Account</b-dropdown-item>
-      <b-dropdown-item><i class="fa fa-lock" /> Logout</b-dropdown-item>
+      <b-dropdown-item @click="logout"><i class="fa fa-lock" /> Logout</b-dropdown-item>
     </template>
   </AppHeaderDropdown>
 </template>
 
 <script>
 import { HeaderDropdown as AppHeaderDropdown } from '@coreui/vue'
+import axios from "axios"
 export default {
   name: 'DefaultHeaderDropdownAccnt',
   components: {
@@ -49,6 +50,18 @@ export default {
   },
   data: () => {
     return { itemsCount: 42 }
+  },
+  methods:{
+    async logout(){
+       try {
+        const response = await axios.get('http://51.77.192.7:8085//api/logout?scientistID='+this.$id.value);
+        console.log("bye");
+      this.$router.push({name:"login"})
+      } catch (e) {
+        this.errors.push(e);
+      }
+
+    }
   }
 }
 </script>

@@ -3,7 +3,7 @@
   <!-- Table -->
 
   <b-row>
-      <h2>Hello {{sname}}  from the {{dept[0].Name}} department in {{dept[0].Location}}</h2>
+    <h2>Hello {{sname}} from the {{dept[0].Name}} department in {{dept[0].Location}}</h2>
     <b-row>
       <b-col lg="12">
         <c-table
@@ -22,8 +22,8 @@
           @click="clicked()"
         ></c-table>
         <div>
-          <p>Select a project from above table then press the button to join the project</p>
-          <b-button v-on:click="joinproject" variant="primary">join project</b-button>
+          <p>Select a project from above table then press the button to delete the project</p>
+          <b-button v-on:click="deleteproject" variant="danger">quit project</b-button>
           <br>
           <br>
         </div>
@@ -42,33 +42,16 @@
             responsive
             caption=" People who I manage"
             fa="fa fa-flask"
-            v-on:selected="rowSelected($event)"
+            v-on:selected="rowSelected2($event)"
             v-on:refresh="loadItems()"
             @click="clicked()"
           ></c-table>
-        </b-col>
-      </b-row>
-    </b-row>
-
-    <b-row>
-      <b-row>
-        <b-col>
-          <b-form-group>
-            <label for="Name">First name</label>
-            <b-form-input v-model="form.Name" type="text" id="fname" placeholder="Name"></b-form-input>
-            <label for="lname">Description</label>
-            <b-form-input
-              v-model="form.Description"
-              type="text"
-              id="lname"
-              placeholder="Description"
-            ></b-form-input>
-            <label for="Name">Department</label>
-            <b-form-input v-model="form.Department" type="text" placeholder="Department ID"></b-form-input>
-            <label for="lname">ProjectManager</label>
-            <b-form-input v-model="form.ProjectManager" type="text" placeholder="ProjectManager ID"></b-form-input>
-          </b-form-group>
-          <b-button v-on:click="joinproject" variant="primary">Edit profile</b-button>
+          <div>
+            <p>Select a mangee from above table then press the button to delete him</p>
+            <b-button v-on:click="deletemanagee" variant="danger">delete managee</b-button>
+            <br>
+            <br>
+          </div>
         </b-col>
       </b-row>
     </b-row>
@@ -91,7 +74,6 @@ export default {
   props: {},
   data() {
     return {
-
       fields: {
         Name: {
           label: "Name",
@@ -119,15 +101,15 @@ export default {
           label: "First Name",
           sortable: true
         },
-         LastName: {
+        LastName: {
           label: "Last Name",
           sortable: true
-        },
-
+        }
       },
+
       dept: [],
-      projectstojoin:"",
-      form: {},
+      projectstodelete: "",
+      body: {},
       sname: "",
       Sresource: "",
       filter: null,
@@ -135,7 +117,8 @@ export default {
       managees: [],
       errors: [],
       selectMode: "Mode",
-      selected: []
+      selected: [],
+      pselected: ""
     };
   },
 
@@ -150,15 +133,43 @@ export default {
     }
   },
   methods: {
-    onsubmit1() {
-      this.primaryModal = true;
+    async deletemanagee() {
+      try {
+        const response = await axios.delete(
+          "http://51.77.192.7:8085/api/delete/managee/" +
+            this.pselected +
+            "?scientistID=" +
+            this.$id.value
+        );
+        this.loadItems();
+      } catch (e) {
+        this.errors.push(e);
+      }
     },
-    joinproject() {},
-    onsubmit2() {
-      this.secondryModal = true;
+    async deleteproject() {
+      try {
+        const response = await axios.delete(
+          "http://51.77.192.7:8085/api/quit/proj/" +
+            this.projectstodelete +
+            "?scientistID=" +
+            this.$id.value
+        );
+        this.loadItems();
+      } catch (e) {
+        this.errors.push(e);
+      }
     },
+
     rowSelected(items) {
       this.selected = items;
+
+      this.projectstodelete = this.selected[0].ProjID;
+      this.$emit("scientistsSelected", this.selected);
+    },
+    rowSelected2(items) {
+      this.selected = items;
+
+      this.pselected = this.selected[0].ID;
       this.$emit("scientistsSelected", this.selected);
     },
     onFiltered(filteredItems) {
@@ -166,10 +177,12 @@ export default {
       this.totalRows = filteredItems.length;
       this.currentPage = 1;
     },
+
     async loadItems() {
       try {
         const response = await axios.get(
-          "http://51.77.192.7:8085/api/get/my/department?scientistID=" +this.$id
+          "http://51.77.192.7:8085/api/get/my/department?scientistID=" +
+            this.$id.value
         );
 
         this.dept = response.data;
@@ -177,28 +190,28 @@ export default {
         this.errors.push(e);
       }
       try {
+        console.log(this.$id);
         const response = await axios.get(
-          "http://51.77.192.7:8085/api/get/my/name?scientistID=" +this.$id
+          "http://51.77.192.7:8085/api/get/my/name?scientistID=" + this.$id.value
         );
 
         this.sname = response.data;
       } catch (e) {
         this.errors.push(e);
       }
-    try {
+      try {
         const response = await axios.get(
-          "http://51.77.192.7:8085/api/get/my/managees?scientistID=" +this.$id
+          "http://51.77.192.7:8085/api/get/my/managees?scientistID=" + this.$id.value
         );
-  console.log(response.data);
+        console.log(response.data);
         this.managees = response.data;
       } catch (e) {
         this.errors.push(e);
       }
 
-
-       try {
+      try {
         const response = await axios.get(
-          "http://51.77.192.7:8085/api/get/my/projs?scientistID=" +this.$id
+          "http://51.77.192.7:8085/api/get/my/projs?scientistID=" + this.$id.value
         );
 
         this.projects = response.data;

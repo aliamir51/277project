@@ -28,7 +28,7 @@
       @ok="primaryModal = false"
     >
       <ol>
-        <li v-for="(project, $index) in projects">{{project}}</li>
+        <li v-for="(project, $index) in projects">{{project.name}}:{{project.Description}}</li>
       </ol>
     </b-modal>
     <b-modal
@@ -38,11 +38,11 @@
       @ok="secondryModal = false"
     >
       <ol>
-        <li v-for="(result, $index) in results">{{result}}</li>
+        <li v-for="(result, $index) in results">{{result.projname}}:{{result.data}}</li>
       </ol>
     </b-modal>
     <b-col>
-      <b-form @submit="onsubmit1">
+      <b-form >
         <b-input-group class="mb-3" label-for="input-1">
           <b-input-group-prepend>
             <b-input-group-text>
@@ -51,17 +51,18 @@
           </b-input-group-prepend>
           <b-form-input
             id="input-1"
+            disabled
             v-model="sname"
             type="text"
             class="form-control"
             :placeholder="itemselectedid"
           />
         </b-input-group>
-        <b-button type="submit" variant="primary">view projects</b-button>
+        <b-button  @click="onsubmit1" variant="primary">view projects</b-button>
       </b-form>
     </b-col>
     <b-col>
-      <b-form @submit="onsubmit2">
+      <b-form >
         <b-input-group class="mb-3" label-for="input-1">
           <b-input-group-prepend>
             <b-input-group-text>
@@ -76,7 +77,7 @@
             :placeholder="itemselectedid"
           />
         </b-input-group>
-        <b-button type="submit" variant="primary">view resources</b-button>
+        <b-button @click="onsubmit2" variant="primary">view results </b-button>
       </b-form>
     </b-col>
   </b-row>
@@ -165,6 +166,7 @@ export default {
           "http://51.77.192.7:8085/api/get/scientist/results/"+this.itemselectedid
         );
       this.results=response.data;
+          console.log(this.results);
 
       } catch (e) {
         this.errors.push(e);

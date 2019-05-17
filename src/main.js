@@ -13,14 +13,14 @@ import router from "./router";
 // cssVars()
 
 Vue.use(BootstrapVue);
-
-Vue.prototype.$id=1;
+Vue.use(router);
+Vue.prototype.$id={value:null};
 /* eslint-disable no-new */
 new Vue({
   el: "#app",
   router,
   data: {
-    id: 1
+    id: null
   },
   template: "<App/>",
   components: {

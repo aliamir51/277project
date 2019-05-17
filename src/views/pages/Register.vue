@@ -5,9 +5,38 @@
         <b-col md="6" sm="8">
           <b-card no-body class="mx-4">
             <b-card-body class="p-4">
-              <b-form @submit="onsubmit">
+              <b-form >
                 <h1>Register</h1>
                 <p class="text-muted">Create your account</p>
+                <b-input-group class="mb-3">
+                  <b-input-group-prepend>
+                    <b-input-group-text>
+                      <i class="icon-user"></i>
+                    </b-input-group-text>
+                  </b-input-group-prepend>
+                  <b-form-input
+                    v-model="body.FirstName"
+                    type="text"
+                    class="form-control"
+                    placeholder="First name"
+                    autocomplete="First name"
+                  />
+                </b-input-group>
+
+                <b-input-group class="mb-3">
+                  <b-input-group-prepend>
+                    <b-input-group-text>
+                      <i class="icon-user"></i>
+                    </b-input-group-text>
+                  </b-input-group-prepend>
+                  <b-form-input
+                    v-model="body.LastName"
+                    type="text"
+                    class="form-control"
+                    placeholder="Last name"
+                    autocomplete="Last name"
+                  />
+                </b-input-group>
                 <b-input-group class="mb-3" label-for="input-1">
                   <b-input-group-prepend>
                     <b-input-group-text>
@@ -16,7 +45,7 @@
                   </b-input-group-prepend>
                   <b-form-input
                     id="input-1"
-                    v-model="form.username"
+                    v-model="body.username"
                     type="text"
                     class="form-control"
                     placeholder="Username"
@@ -26,14 +55,16 @@
 
                 <b-input-group class="mb-3">
                   <b-input-group-prepend>
-                    <b-input-group-text>@</b-input-group-text>
+                    <b-input-group-text>
+                      <i class="fa fa-building"></i>
+                    </b-input-group-text>
                   </b-input-group-prepend>
                   <b-form-input
-                    v-model="form.email"
+                    v-model="body.depName"
                     type="text"
                     class="form-control"
-                    placeholder="Email"
-                    autocomplete="email"
+                    placeholder="Dept name"
+                    autocomplete="Dept name"
                   />
                 </b-input-group>
 
@@ -44,7 +75,7 @@
                     </b-input-group-text>
                   </b-input-group-prepend>
                   <b-form-input
-                    v:model="password"
+                    v-model="body.password"
                     type="password"
                     class="form-control"
                     placeholder="Password"
@@ -66,7 +97,7 @@
                   />
                 </b-input-group>
 
-                <b-button type="submit" variant="success">Create Account</b-button>
+                <b-button@click="onsubmit" variant="success">Create Account</b-button>
               </b-form>
             </b-card-body>
             <b-card-footer class="p-4">
@@ -91,13 +122,14 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "Register",
   data() {
     return {
-      form: {
+      body: {
         username: "",
-        email: "",
+        depName: "",
         password: "",
         fname: "",
         lname: ""
@@ -105,8 +137,17 @@ export default {
     };
   },
   methods: {
-    onsubmit(evt) {
-      this.$router.push((name = "login"));
+    async onsubmit(evt) {
+      try {
+        console.log(this.body);
+        const response = await axios.post(
+          "http://51.77.192.7:8085/api/add/scientist",
+          this.body
+        );
+      } catch (e) {
+        this.errors.push(e);
+      }
+      router.push(( name= "login" ));
       console.log(JSON.stringify(this.form));
     }
   }

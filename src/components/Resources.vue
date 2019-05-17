@@ -13,6 +13,7 @@
         bordered
         small
         responsive
+        v-on:selected="rowSelected($event)"
         caption="Resources"
         fa="fa fa-picture-o"
         v-on:refresh="loadItems()"
@@ -21,7 +22,7 @@
     </b-col>
     <b-modal title="Add resource" class="modal-primary" v-model="addModal" @ok="submitclose()">
       <b-form-group>
-        <label for="Name"> Name</label>
+        <label for="Name">Name</label>
         <b-form-input v-model="body.name" type="text" id="fname" placeholder="Name"></b-form-input>
         <label for="lname">Description</label>
         <b-form-input v-model="body.description" type="text" id="lname" placeholder="Description"></b-form-input>
@@ -29,7 +30,11 @@
         <b-form-input v-model="body.cost" type="text" placeholder="Cost"></b-form-input>
       </b-form-group>
     </b-modal>
-    <b-btn id="add" variant="primary" @click="AddProject()">Add Project</b-btn>
+    <b-form >
+      <b-form-input v-model="cost" type="text" id="cost" placeholder="Cost"></b-form-input>
+      <b-button @click="editcost" variant="primary">edit cost</b-button>
+    </b-form>
+    <b-btn id="add" variant="primary" @click="AddProject()">Add Resource</b-btn>
   </b-row>
 
   <!-- </div> -->
@@ -49,6 +54,8 @@ export default {
   props: {},
   data() {
     return {
+      cost: null,
+      id: null,
       editModal: false,
       addModal: false,
       body: {},
@@ -94,11 +101,11 @@ export default {
   methods: {
     async submitclose() {
       try {
-        console.log(this.body)
         const response = await axios.post(
-          "http://51.77.192.7:8085/api/add/resource",this.body
+          "http://51.77.192.7:8085/api/add/resource",
+          this.body
         );
-
+        this.loadItems();
       } catch (e) {
         this.errors.push(e);
       }
@@ -109,6 +116,8 @@ export default {
     },
     rowSelected(items) {
       this.selected = items;
+      this.id = this.selected[0].ResourceID;
+
       this.$emit("resourcesSelected", this.selected);
     },
     onFiltered(filteredItems) {
@@ -116,10 +125,23 @@ export default {
       this.totalRows = filteredItems.length;
       this.currentPage = 1;
     },
-
+    async editcost() {
+      try {
+        console.log(this.cost);
+        const response = await axios.post(
+          "http://51.77.192.7:8085/api/edit/cost/resource",
+          { cost: this.cost, resID: this.id }
+        );
+        this.loadItems();
+      } catch (e) {
+        this.errors.push(e);
+      }
+    },
     async loadItems() {
       try {
-        const response = await axios.get('http://51.77.192.7:8085/api/get/resources');
+        const response = await axios.get(
+          "http://51.77.192.7:8085/api/get/resources"
+        );
         this.resources = response.data;
       } catch (e) {
         this.errors.push(e);

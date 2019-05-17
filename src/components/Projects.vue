@@ -19,12 +19,7 @@
         @click="clicked()"
       ></c-table>
     </b-col>
-    <b-modal
-      title="Results"
-      class="modal-primary"
-      v-model="primaryModal"
-      @ok="primaryModal=false"
-    >
+    <b-modal title="Results" class="modal-primary" v-model="primaryModal" @ok="primaryModal=false">
       <ol>
         <li v-for="(result, $index) in results">{{result.Data}}</li>
       </ol>
@@ -42,7 +37,7 @@
 
     <b-col>
       <b-row>
-        <b-form @submit="onsubmit1">
+        <b-form>
           <b-input-group class="mb-3" label-for="input-1">
             <b-input-group-prepend>
               <b-input-group-text>
@@ -58,12 +53,12 @@
               :placeholder="itemselectedid"
             />
           </b-input-group>
-          <b-button type="submit" variant="primary">view results</b-button>
+          <b-button  @click="onsubmit1" variant="primary">view results</b-button>
         </b-form>
       </b-row>
-    </b-col>
-
+    </b-col><b-row>
     <b-btn id="add" variant="primary" @click="AddProject()">Add Project</b-btn>
+    <b-btn id="add" variant="primary" @click="joinproject()">join Project</b-btn></b-row>
   </b-row>
 
   <!-- </div> -->
@@ -88,7 +83,7 @@ export default {
         Description: "",
         depID: "",
 
-        scientistID: this.$id
+        scientistID: this.$id.value
       },
       itemselectedid: null,
       pname: "",
@@ -136,7 +131,7 @@ export default {
       try {
         const response = await axios.get(
           "http://51.77.192.7:8085/api/get/proj/result/" +
-            this.itemselectedid +
+            this.itemselectedid.Name +
             ""
         );
         this.results = response.data;
@@ -145,12 +140,24 @@ export default {
       }
       this.primaryModal = true;
     },
+    async joinproject() {
+      try {
+        const response = await axios.get(
+          "http://51.77.192.7:8085/api/join/proj/" +
+            this.itemselectedid.ProjID +
+            "?scientistID=" +
+            this.$id.value
+        );
+      } catch (e) {
+        this.errors.push(e);
+      }
+    },
     async submitclose() {
       try {
         const response = await axios.post(
-          "http://51.77.192.7:8085/api/add/project?scientistID=" + this.$id,this.body
+          "http://51.77.192.7:8085/api/add/project?scientistID=" + this.$id.value,
+          this.body
         );
-
       } catch (e) {
         this.errors.push(e);
       }
@@ -161,7 +168,7 @@ export default {
     },
     rowSelected(items) {
       this.selected = items;
-      this.itemselectedid = this.selected[0].Name;
+      this.itemselectedid = this.selected[0];
       this.$emit("projectsSelected", this.selected);
     },
     onFiltered(filteredItems) {
