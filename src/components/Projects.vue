@@ -29,7 +29,7 @@
         <label for="Name">First name</label>
         <b-form-input v-model="body.name" type="text" id="fname" placeholder="Name"></b-form-input>
         <label for="lname">Description</label>
-        <b-form-input v-model="body.Description" type="text" id="lname" placeholder="Description"></b-form-input>
+        <b-form-input v-model="body.description" type="text" id="lname" placeholder="Description"></b-form-input>
         <label for="Name">Department</label>
         <b-form-input v-model="body.depID" type="text" placeholder="Department ID"></b-form-input>
       </b-form-group>
@@ -80,7 +80,7 @@ export default {
     return {
       body: {
         name: "",
-        Description: "",
+        description: "",
         depID: "",
 
         scientistID: this.$id.value
@@ -148,6 +148,7 @@ export default {
             "?scientistID=" +
             this.$id.value
         );
+
       } catch (e) {
         this.errors.push(e);
       }
@@ -158,6 +159,7 @@ export default {
           "http://51.77.192.7:8085/api/add/project?scientistID=" + this.$id.value,
           this.body
         );
+        this.loadItems();
       } catch (e) {
         this.errors.push(e);
       }

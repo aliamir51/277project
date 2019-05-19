@@ -52,7 +52,7 @@
               <b-card-body class="text-center">
                 <div>
                   <h2>Sign up</h2>
-                  <p>New to Antler? Register now and let the fun begin.</p>
+                  <p>New to our hub? Register now and let the fun begin.</p>
                   <b-button variant="primary" class="active mt-3" @click="register">Register</b-button>
                 </div>
               </b-card-body>
